@@ -1,7 +1,7 @@
 <p align="center">
-  <h1 align="center">Claude Code Game Studios</h1>
+  <h1 align="center">Company of Gamers</h1>
   <p align="center">
-    Turn a single Claude Code session into a full game development studio.
+    Turn a local coding-agent session into a coordinated game development studio.
     <br />
     49 agents. 74 skills. One coordinated AI team.
   </p>
@@ -13,7 +13,7 @@
   <a href=".claude/skills"><img src="https://img.shields.io/badge/skills-74-green" alt="74 Skills"></a>
   <a href=".claude/hooks"><img src="https://img.shields.io/badge/hooks-12-orange" alt="12 Hooks"></a>
   <a href=".claude/rules"><img src="https://img.shields.io/badge/rules-13-red" alt="13 Rules"></a>
-  <a href="https://code.claude.com/docs"><img src="https://img.shields.io/badge/built%20for-Claude%20Code-f5f5f5?logo=anthropic" alt="Built for Claude Code"></a>
+  <a href="#local-cli-support"><img src="https://img.shields.io/badge/local%20CLI-Codex%20%7C%20Antigravity%20%7C%20Muse%20%7C%20Grok%20%7C%20pi-blue" alt="Local CLI support"></a>
   <a href="https://www.buymeacoffee.com/donchitos3"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support%20this%20project-FFDD00?logo=buymeacoffee&logoColor=black" alt="Buy Me a Coffee"></a>
   <a href="https://github.com/sponsors/Donchitos"><img src="https://img.shields.io/badge/GitHub%20Sponsors-Support%20this%20project-ea4aaa?logo=githubsponsors&logoColor=white" alt="GitHub Sponsors"></a>
 </p>
@@ -24,7 +24,7 @@
 
 Building a game solo with AI is powerful — but a single chat session has no structure. No one stops you from hardcoding magic numbers, skipping design docs, or writing spaghetti code. There's no QA pass, no design review, no one asking "does this actually fit the game's vision?"
 
-**Claude Code Game Studios** solves this by giving your AI session the structure of a real studio. Instead of one general-purpose assistant, you get 49 specialized agents organized into a studio hierarchy — directors who guard the vision, department leads who own their domains, and specialists who do the hands-on work. Each agent has defined responsibilities, escalation paths, and quality gates.
+**Company of Gamers**, based on [Claude Code Game Studios](https://github.com/Donchitos/Claude-Code-Game-Studios), gives your AI session the structure of a real studio. Its 49 role prompts form a studio hierarchy — directors who guard the vision, department leads who own their domains, and specialists who do the hands-on work. Each role has defined responsibilities, escalation paths, and quality gates. Claude Code uses native subagents; other local CLIs use the portable `studio` entrypoint with the delegation capabilities available in that host.
 
 The result: you still make every decision, but now you have a team that asks the right questions, catches mistakes early, and keeps your project organized from first brainstorm to launch.
 
@@ -37,6 +37,7 @@ The result: you still make every decision, but now you have a team that asks the
 - [Slash Commands](#slash-commands)
 - [Does it produce games, or documents?](#does-it-produce-games-or-documents)
 - [Getting Started](#getting-started)
+- [Local CLI Support](#local-cli-support)
 - [Configuration](#configuration)
 - [Upgrading](#upgrading)
 - [Project Structure](#project-structure)
@@ -54,10 +55,10 @@ The result: you still make every decision, but now you have a team that asks the
 
 | Category | Count | Description |
 |----------|-------|-------------|
-| **Agents** | 49 | Specialized subagents across design, programming, art, audio, narrative, QA, and production |
-| **Skills** | 74 | Slash commands for every workflow phase (`/start`, `/design-system`, `/create-epics`, `/create-stories`, `/dev-story`, `/story-done`, etc.) |
-| **Hooks** | 12 | Automated validation on commits, pushes, asset changes, session lifecycle, agent audit trail, and gap detection |
-| **Rules** | 13 | Path-scoped coding standards enforced when editing gameplay, engine, AI, UI, network code, and more |
+| **Agents** | 49 | Role prompts across design, programming, art, audio, narrative, QA, and production; native subagents in Claude Code |
+| **Skills** | 74 | Workflows for every phase; original slash commands in Claude Code, routed through `studio` on other CLIs |
+| **Hooks** | 12 | Claude Code event integrations for validation, session lifecycle, agent audit trail, and gap detection |
+| **Rules** | 13 | Path-scoped standards; automatically loaded by Claude Code, explicitly read and applied in portable mode |
 | **Templates** | 39 | Document templates for GDDs, UX specs, ADRs, sprint plans, HUD design, accessibility, and more |
 
 ## Studio Hierarchy
@@ -84,10 +85,12 @@ Tier 3 — Specialists
   live-ops-designer    community-manager
 ```
 
-Each agent declares a model in its frontmatter: the three directors ask for
+In Claude Code, agent frontmatter selects models: the three directors ask for
 Opus, `lead-programmer` and fifteen specialists name Sonnet, and the remaining thirty
 **inherit your session's model**. Treat the tiers as seniority of role, not as
 a billing plan — most of the studio runs on whatever model you are already using.
+Portable mode uses your host CLI's selected model; Anthropic model names are not
+translated into other providers' model IDs.
 
 ### Engine Specialists
 
@@ -101,7 +104,12 @@ The template includes agent sets for all three major engines. Use the set that m
 
 ## Slash Commands
 
-Type `/` in Claude Code to access all 74 skills:
+Type `/` in Claude Code to access all 74 skills. On other CLIs, use the shared
+`studio` skill followed by the workflow name and arguments: `$studio brainstorm`
+in Codex, `/studio brainstorm` in Antigravity/Grok, or `/skill:studio brainstorm`
+in pi. In Muse Code, select `studio` from `/skills` and request `brainstorm`.
+The `/name` notation below names the original workflow; it does not mean every
+host registers that name as a separate command.
 
 **Onboarding & Navigation**
 `/start` `/help` `/project-stage-detect` `/setup-engine` `/adopt` `/settings`
@@ -173,36 +181,78 @@ clutter, not evidence.
 ### Prerequisites
 
 - [Git](https://git-scm.com/)
-- [Claude Code](https://code.claude.com/docs/en/setup) — the native installer is recommended (`npm install -g @anthropic-ai/claude-code` also works, on Node.js 22+)
-- [Python 3](https://www.python.org/) — reads `project.yaml` for every skill and hook; without it every setting silently falls back to its default
-- Bash — runs every hook; built into macOS and Linux, and on Windows it comes with [Git for Windows](https://git-scm.com/downloads/win)
+- An installed, authenticated **Codex CLI, Antigravity CLI, Muse Code, Grok Build, pi**, or [Claude Code](https://code.claude.com/docs/en/setup)
+- [Python 3.9+](https://www.python.org/) — runs the portable prompt renderer and existing configuration helpers; no extra Python packages required
+- Bash — runs configuration helpers and existing hooks; on Windows use the Bash included with [Git for Windows](https://git-scm.com/downloads/win)
 - **Recommended**: [jq](https://jqlang.github.io/jq/) (for hook validation)
 
-Hooks fail gracefully if optional tools are missing — you just lose validation — with one deliberate exception: a commit that stages data JSON is blocked when there is no Python to validate it.
+In Claude Code, hooks generally degrade when optional tools are missing, except
+that a commit staging data JSON is blocked without Python validation. Portable
+mode does not install those event hooks; missing runtimes or mandatory checks
+must be reported rather than silently treated as successful validation.
 
 ### Setup
 
 1. **Clone or use as template**:
    ```bash
-   git clone https://github.com/Donchitos/Claude-Code-Game-Studios.git my-game
+   git clone https://github.com/Chiriri722/Company-of-gamers.git my-game
    cd my-game
    ```
 
-2. **Open Claude Code in the project's root folder** (the one holding
-   `CLAUDE.md` and `project.yaml`) and start a session:
+2. **Check the portable workflow catalog** from the root (the folder holding
+   `AGENTS.md` and `project.yaml`):
    ```bash
-   claude
+   python scripts/studio.py list
    ```
-   Starting it in a subfolder such as `src/` skips the project's hooks, deny
-   rules and ask-first permission mode.
+   Use `python3` or `py -3` if needed. This only lists prompts; it does not start
+   a model session or run a game workflow.
 
-3. **Run `/start`** — the system asks where you are (no idea, vague concept,
+3. **Launch your CLI at that root and invoke `studio start`** using the syntax
+   in the table below. The system asks where you are (no idea, vague concept,
    clear design, existing work) and guides you to the right workflow. No assumptions.
 
    Or jump directly to a specific skill if you already know what you need:
-   - `/brainstorm` — explore game ideas from scratch
-   - `/setup-engine godot 4.6` — configure your engine if you already know
-   - `/project-stage-detect` — analyze an existing project
+   - `studio brainstorm` — explore game ideas from scratch
+   - `studio setup-engine godot 4.6` — configure your engine if you already know
+   - `studio project-stage-detect` — analyze an existing project
+
+For **Claude Code**, launch `claude` at the same root and use the original
+`/start`, `/brainstorm`, etc. Its `CLAUDE.md`, settings, hooks and skills remain
+unchanged. Starting Claude Code in a subfolder can skip root hooks and settings.
+
+## Local CLI Support
+
+First-wave support is a **portable prompt/workflow adapter**, not full native
+hook or subagent parity. One shared `studio` skill loads the 74 original
+workflows and 49 role prompts on demand.
+
+| CLI | Launch | Start inside the session | Discovery |
+|---|---|---|---|
+| Codex | `codex` | `$studio start` | `.agents/skills/studio/` |
+| Antigravity | `agy` | `/studio start` | `.agents/skills/studio/` |
+| Muse Code | `muse` | `/skills` → select `studio`, then request `start` | `.agents/skills/studio/` |
+| Grok Build | `grok` | `/studio start`, or `/skills studio` then request `start` | `.grok/skills/studio/` |
+| pi | `pi` | `/skill:studio start` | `.agents/skills/studio/` |
+
+If skill discovery is unavailable, ask: **Read
+`.agents/skills/studio/SKILL.md` and run the `start` workflow.** Accept project
+trust through the host's normal flow; Muse Code skips project skills in an
+untrusted workspace. Keep using `studio` on clients that also discover Claude
+skills so the portable conversion is applied.
+
+The adapter removes Claude-specific frontmatter, replaces directory variables,
+and turns shell preprocessing into explicit command steps. It keeps existing
+configuration, workflow content, templates and supporting references in place.
+Use native delegation when available; otherwise disclose sequential role passes.
+An independent-review requirement cannot be satisfied by relabelling self-review.
+
+**Not ported:** automatic lifecycle/validation hooks, permission rules, model
+pins, status line, notifications, and native registration of 49 subagents.
+Apply path rules and maintain session checkpoints explicitly. Tests cover the
+adapter and every source prompt; authenticated end-to-end sessions across all
+five clients are not yet verified. pi 1.2.0's offline command discovery was also
+verified locally. For the runtime contract, verification
+commands and official discovery references, see [Local CLI compatibility](docs/local-cli.md).
 
 ## Configuration
 
@@ -256,11 +306,21 @@ Full schema and per-setting behavior: `.claude/docs/effects-map.md`.
 Already using an older version of this template? See [UPGRADING.md](UPGRADING.md)
 for step-by-step migration instructions, a breakdown of what changed between
 versions, and which files are safe to overwrite vs. which need a manual merge.
+Preserve this fork's `AGENTS.md`, `docs/local-cli.md`, `scripts/studio.py` and
+the two `studio` entrypoints when applying upstream updates. Original skills
+remain under `.claude/`; the adapter reads their latest content on demand.
 
 ## Project Structure
 
 ```
-CLAUDE.md                           # Master configuration
+AGENTS.md                           # Portable project instructions
+CLAUDE.md                           # Claude Code project instructions
+project.yaml                        # Shared project configuration
+.agents/skills/studio/SKILL.md       # Codex, Antigravity, Muse Code, pi entrypoint
+.grok/skills/studio/SKILL.md         # Grok Build entrypoint, delegates to shared skill
+scripts/studio.py                   # Read-only portable prompt renderer
+scripts/tests/                      # Adapter regression tests
+docs/local-cli.md                   # Compatibility contract and client instructions
 .claude/
   settings.json                     # Hooks, permissions, safety rules
   agents/                           # 49 agent definitions (markdown + YAML frontmatter)
@@ -301,6 +361,9 @@ templates for writing specs of your own.
 ```
 
 It tests the *framework*, never your game — game tests live in `tests/`.
+On portable clients, invoke these through `studio`, for example
+`studio skill-test static start`. Run the adapter's automated regression suite
+separately with `python -m unittest discover -s scripts/tests -v`.
 
 ## How It Works
 
@@ -314,9 +377,9 @@ Agents follow a structured delegation model:
 4. **Change propagation** — cross-department changes are coordinated by `producer`
 5. **Domain boundaries** — agents don't modify files outside their domain without explicit delegation
 
-### Collaborative, Not Autonomous
+### Collaboration Modes
 
-This is **not** an auto-pilot system. Every agent follows a strict collaboration protocol:
+By default, `modes.automation: collaborative` follows this collaboration protocol:
 
 1. **Ask** — agents ask questions before proposing solutions
 2. **Present options** — agents show 2-4 options with pros/cons
@@ -326,15 +389,16 @@ This is **not** an auto-pilot system. Every agent follows a strict collaboration
 
 You stay in control. The agents provide structure and expertise, not autonomy.
 
-That is how a terminal session started at the project root behaves out of the
-box. The `guided` and `autonomous` automation settings, and Claude Code's own
-auto mode, trade some of these prompts for speed; see
+The `guided` and `autonomous` workflow settings trade some prompts for speed.
+Portable sessions respect the user's already authorized scope and the host's
+permission controls. Claude Code also has its own auto mode; see
 [setup-requirements.md](.claude/docs/setup-requirements.md) for the routes into
 auto mode.
 
 ### Automated Safety
 
-**Hooks** run automatically on every session:
+In **Claude Code**, these hooks are registered by the project settings. The
+portable adapter does not register them with other CLIs:
 
 | Hook | Trigger | What It Does |
 |------|---------|--------------|
@@ -357,7 +421,9 @@ auto mode.
 
 ### Path-Scoped Rules
 
-Coding standards are automatically enforced based on file location. The paths
+Claude Code automatically loads coding standards based on file location.
+In portable mode, `AGENTS.md` directs the agent to read and apply matching rules;
+this is instruction-based behavior rather than automatic enforcement. The paths
 below are Godot's. Each rule also matches the Unity and Unreal layouts: the code
 rules match C# under `Assets/**/Gameplay/` and C++ under `Source/**/Gameplay/` (and `Core`,
 `AI`, `Networking`, `UI`), data matches JSON under `Assets/**/Data/` and
@@ -402,18 +468,27 @@ This is a **template**, not a locked framework. Everything is meant to be custom
 
 ## Platform Support
 
-Primary development on **Windows 10** with Git Bash. The hooks and scripts are also tested on **macOS** — its stock bash 3.2 and BSD tools, with and without `jq` — and on **Linux**. All hooks use POSIX-compatible patterns (`grep -E`, not `grep -P`) and include fallbacks for missing tools. The `notify.sh` hook uses PowerShell for Windows toast notifications and is a no-op elsewhere — desktop notifications on macOS/Linux are not yet wired. Please file issues for any platform-specific breakage.
+The portable renderer uses standard-library Python 3.9+ and is tested on Windows,
+including paths with spaces and Unicode. Configuration helpers were exercised
+with Git Bash. macOS/Linux adapter runs and authenticated workflow sessions in
+all five CLIs still need validation; support here describes the implemented
+entrypoints and prompt adaptation, not a completed client/OS certification matrix.
+
+The upstream project reports hook/script coverage on Windows with Git Bash,
+macOS bash 3.2/BSD tools, and Linux. `notify.sh` provides Windows notifications
+only. These Claude event hooks are separate from portable CLI support.
 
 ## Community
 
 - **Discussions** — [GitHub Discussions](https://github.com/Donchitos/Claude-Code-Game-Studios/discussions) for questions, ideas, and showcasing what you've built
-- **Issues** — [Bug reports and feature requests](https://github.com/Donchitos/Claude-Code-Game-Studios/issues)
+- **Issues** — [Company of Gamers bugs and feature requests](https://github.com/Chiriri722/Company-of-gamers/issues)
 
 ---
 
 ## Supporting This Project
 
-Claude Code Game Studios is free and open source. If it saves you time or helps you ship your game, consider supporting continued development:
+Company of Gamers builds on the free and open-source Claude Code Game Studios.
+The links below support the upstream creator, Donchitos:
 
 <p>
   <a href="https://www.buymeacoffee.com/donchitos3"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee"></a>
@@ -428,7 +503,8 @@ Sponsorships help fund time spent maintaining skills, adding new agents, keeping
 
 ---
 
-*Built for Claude Code. Maintained and extended — contributions welcome via [GitHub Discussions](https://github.com/Donchitos/Claude-Code-Game-Studios/discussions).*
+*Originally built for Claude Code; extended with portable workflows for Codex,
+Antigravity, Muse Code, Grok Build and pi.*
 
 ## License
 
